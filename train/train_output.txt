@@ -1,0 +1,360 @@
+[[ 2  0  4 ...  1  0 15]
+ [ 2  0  5 ...  1  1 15]
+ [ 2  0  5 ...  0  1 15]
+ ...
+ [ 2  0  1 ...  0  0  7]
+ [ 2  0  1 ...  1  0  7]
+ [ 2  0  0 ...  1  1  7]]
+[[ 2  0  4 ...  1  0 15]
+ [ 2  0  5 ...  1  1 15]
+ [ 2  0  5 ...  0  1 15]
+ ...
+ [ 2  0  1 ...  0  0  7]
+ [ 2  0  1 ...  1  0  7]
+ [ 2  0  0 ...  1  1  7]]
+Getting embeddings
+Loading embeddings from mfccs.pt
+Done getting embeddings
+finished train/test split
+Training
+Epoch 1/50 | Loss: 1.9752
+Epoch 2/50 | Loss: 1.8442
+Epoch 3/50 | Loss: 1.8249
+Epoch 4/50 | Loss: 1.7888
+Epoch 5/50 | Loss: 1.7753
+Epoch 6/50 | Loss: 1.7407
+Epoch 7/50 | Loss: 1.7487
+Epoch 8/50 | Loss: 1.7465
+Epoch 9/50 | Loss: 1.7427
+Epoch 10/50 | Loss: 1.7229
+Epoch 11/50 | Loss: 1.6861
+Epoch 12/50 | Loss: 1.6722
+Epoch 13/50 | Loss: 1.6605
+Epoch 14/50 | Loss: 1.6545
+Epoch 15/50 | Loss: 1.6364
+Epoch 16/50 | Loss: 1.6371
+Epoch 17/50 | Loss: 1.6731
+Epoch 18/50 | Loss: 1.6477
+Epoch 19/50 | Loss: 1.6277
+Epoch 20/50 | Loss: 1.6221
+Epoch 21/50 | Loss: 1.6300
+Epoch 22/50 | Loss: 1.6283
+Epoch 23/50 | Loss: 1.6228
+Epoch 24/50 | Loss: 1.6401
+Epoch 25/50 | Loss: 1.6191
+Epoch 26/50 | Loss: 1.6415
+Epoch 27/50 | Loss: 1.6237
+Epoch 28/50 | Loss: 1.6105
+Epoch 29/50 | Loss: 1.5937
+Epoch 30/50 | Loss: 1.5998
+Epoch 31/50 | Loss: 1.6164
+Epoch 32/50 | Loss: 1.5925
+Epoch 33/50 | Loss: 1.5834
+Epoch 34/50 | Loss: 1.5687
+Epoch 35/50 | Loss: 1.5354
+Epoch 36/50 | Loss: 1.5492
+Epoch 37/50 | Loss: 1.5552
+Epoch 38/50 | Loss: 1.5131
+Epoch 39/50 | Loss: 1.5239
+Epoch 40/50 | Loss: 1.5237
+Epoch 41/50 | Loss: 1.5015
+Epoch 42/50 | Loss: 1.5068
+Epoch 43/50 | Loss: 1.4730
+Epoch 44/50 | Loss: 1.4765
+Epoch 45/50 | Loss: 1.4660
+Epoch 46/50 | Loss: 1.4749
+Epoch 47/50 | Loss: 1.4443
+Epoch 48/50 | Loss: 1.4229
+Epoch 49/50 | Loss: 1.4259
+Epoch 50/50 | Loss:  
+Accuracy: 0.4661
+Label: 2, Pred: 5
+Label: 6, Pred: 5
+Label: 7, Pred: 5
+Label: 3, Pred: 5
+Label: 7, Pred: 5
+Label: 6, Pred: 5
+Label: 1, Pred: 5
+Label: 3, Pred: 5
+Label: 2, Pred: 5
+Label: 4, Pred: 5
+Label: 6, Pred: 5
+Label: 3, Pred: 5
+Label: 3, Pred: 5
+Label: 0, Pred: 5
+Label: 3, Pred: 5
+Label: 2, Pred: 5
+Label: 3, Pred: 5
+Label: 6, Pred: 5
+Label: 6, Pred: 5
+Label: 4, Pred: 5
+Label: 4, Pred: 5
+Label: 6, Pred: 5
+Label: 7, Pred: 5
+Label: 4, Pred: 5
+Label: 6, Pred: 5
+Label: 1, Pred: 5
+Label: 7, Pred: 5
+Label: 5, Pred: 5
+Label: 4, Pred: 5
+Label: 0, Pred: 5
+Label: 7, Pred: 5
+Label: 3, Pred: 5
+Label: 0, Pred: 5
+Label: 6, Pred: 5
+Label: 4, Pred: 5
+Label: 4, Pred: 5
+Label: 5, Pred: 5
+Label: 2, Pred: 5
+Label: 0, Pred: 5
+Label: 7, Pred: 5
+Label: 4, Pred: 5
+Label: 2, Pred: 5
+Label: 1, Pred: 5
+Label: 7, Pred: 5
+Label: 5, Pred: 5
+Label: 6, Pred: 5
+Label: 6, Pred: 5
+Label: 7, Pred: 5
+Label: 7, Pred: 5
+Label: 7, Pred: 5
+Label: 2, Pred: 5
+Label: 1, Pred: 5
+Label: 1, Pred: 5
+Label: 2, Pred: 5
+Label: 1, Pred: 5
+Label: 3, Pred: 5
+Label: 7, Pred: 5
+Label: 2, Pred: 5
+Label: 1, Pred: 5
+Label: 1, Pred: 5
+Label: 5, Pred: 5
+Label: 5, Pred: 5
+Label: 2, Pred: 5
+Label: 1, Pred: 5
+Label: 6, Pred: 5
+Label: 2, Pred: 5
+Label: 3, Pred: 5
+Label: 7, Pred: 5
+Label: 0, Pred: 5
+Label: 6, Pred: 5
+Label: 1, Pred: 5
+Label: 4, Pred: 5
+Label: 6, Pred: 5
+Label: 3, Pred: 5
+Label: 1, Pred: 5
+Label: 6, Pred: 5
+Label: 3, Pred: 5
+Label: 1, Pred: 5
+Label: 5, Pred: 5
+Label: 4, Pred: 5
+Label: 7, Pred: 5
+Label: 6, Pred: 5
+Label: 2, Pred: 5
+Label: 7, Pred: 5
+Label: 4, Pred: 5
+Label: 3, Pred: 5
+Label: 5, Pred: 5
+Label: 4, Pred: 5
+Label: 2, Pred: 5
+Label: 5, Pred: 5
+Label: 2, Pred: 5
+Label: 6, Pred: 5
+Label: 5, Pred: 5
+Label: 2, Pred: 5
+Label: 6, Pred: 5
+Label: 3, Pred: 5
+Label: 6, Pred: 5
+Label: 4, Pred: 5
+Label: 1, Pred: 5
+Label: 5, Pred: 5
+Label: 2, Pred: 5
+Label: 1, Pred: 5
+Label: 4, Pred: 5
+Label: 3, Pred: 5
+Label: 6, Pred: 5
+Label: 1, Pred: 5
+Label: 0, Pred: 5
+Label: 6, Pred: 5
+Label: 5, Pred: 5
+Label: 1, Pred: 5
+Label: 7, Pred: 5
+Label: 1, Pred: 5
+Label: 1, Pred: 5
+Label: 4, Pred: 5
+Label: 2, Pred: 5
+Label: 0, Pred: 5
+Label: 0, Pred: 5
+Label: 5, Pred: 5
+Label: 5, Pred: 5
+Label: 4, Pred: 5
+Label: 6, Pred: 5
+Label: 5, Pred: 5
+Label: 2, Pred: 5
+Label: 7, Pred: 5
+Label: 6, Pred: 5
+Label: 4, Pred: 5
+Label: 1, Pred: 5
+Label: 7, Pred: 5
+Label: 2, Pred: 5
+Label: 2, Pred: 5
+Label: 1, Pred: 5
+Label: 1, Pred: 5
+Label: 5, Pred: 5
+Label: 3, Pred: 5
+Label: 1, Pred: 5
+Label: 2, Pred: 5
+Label: 4, Pred: 5
+Label: 6, Pred: 5
+Label: 5, Pred: 5
+Label: 5, Pred: 5
+Label: 1, Pred: 5
+Label: 5, Pred: 5
+Label: 5, Pred: 5
+Label: 1, Pred: 5
+Label: 1, Pred: 5
+Label: 0, Pred: 5
+Label: 5, Pred: 5
+Label: 2, Pred: 5
+Label: 1, Pred: 5
+Label: 1, Pred: 5
+Label: 2, Pred: 5
+Label: 2, Pred: 5
+Label: 2, Pred: 5
+Label: 3, Pred: 5
+Label: 1, Pred: 5
+Label: 2, Pred: 5
+Label: 7, Pred: 5
+Label: 7, Pred: 5
+Label: 7, Pred: 5
+Label: 4, Pred: 5
+Label: 4, Pred: 5
+Label: 1, Pred: 5
+Label: 4, Pred: 5
+Label: 3, Pred: 5
+Label: 2, Pred: 5
+Label: 2, Pred: 5
+Label: 2, Pred: 5
+Label: 6, Pred: 5
+Label: 3, Pred: 5
+Label: 6, Pred: 5
+Label: 4, Pred: 5
+Label: 6, Pred: 5
+Label: 7, Pred: 5
+Label: 3, Pred: 5
+Label: 3, Pred: 5
+Label: 0, Pred: 5
+Label: 1, Pred: 5
+Label: 1, Pred: 5
+Label: 0, Pred: 5
+Label: 6, Pred: 5
+Label: 5, Pred: 5
+Label: 1, Pred: 5
+Label: 3, Pred: 5
+Label: 6, Pred: 5
+Label: 7, Pred: 5
+Label: 0, Pred: 5
+Label: 3, Pred: 5
+Label: 4, Pred: 5
+Label: 1, Pred: 5
+Label: 2, Pred: 5
+Label: 7, Pred: 5
+Label: 7, Pred: 5
+Label: 5, Pred: 5
+Label: 4, Pred: 5
+Label: 3, Pred: 5
+Label: 5, Pred: 5
+Label: 6, Pred: 5
+Label: 5, Pred: 5
+Label: 0, Pred: 5
+Label: 6, Pred: 5
+Label: 7, Pred: 5
+Label: 5, Pred: 5
+Label: 0, Pred: 5
+Label: 1, Pred: 5
+Label: 3, Pred: 5
+Label: 0, Pred: 5
+Label: 2, Pred: 5
+Label: 3, Pred: 5
+Label: 2, Pred: 5
+Label: 6, Pred: 5
+Label: 1, Pred: 5
+Label: 4, Pred: 5
+Label: 6, Pred: 5
+Label: 3, Pred: 5
+Label: 3, Pred: 5
+Label: 7, Pred: 5
+Label: 5, Pred: 5
+Label: 2, Pred: 5
+Label: 1, Pred: 5
+Label: 2, Pred: 5
+Label: 2, Pred: 5
+Label: 3, Pred: 5
+Label: 0, Pred: 5
+Label: 7, Pred: 5
+Label: 5, Pred: 5
+Label: 1, Pred: 5
+Label: 4, Pred: 5
+Label: 6, Pred: 5
+Label: 4, Pred: 5
+Label: 1, Pred: 5
+Label: 7, Pred: 5
+Label: 6, Pred: 5
+Label: 7, Pred: 5
+Label: 3, Pred: 5
+Label: 6, Pred: 5
+Label: 2, Pred: 5
+Label: 2, Pred: 5
+Label: 2, Pred: 5
+Label: 5, Pred: 5
+Label: 1, Pred: 5
+Label: 4, Pred: 5
+Label: 6, Pred: 5
+Label: 3, Pred: 5
+Label: 2, Pred: 5
+Label: 7, Pred: 5
+Label: 0, Pred: 5
+Label: 4, Pred: 5
+Label: 5, Pred: 5
+Label: 4, Pred: 5
+Label: 5, Pred: 5
+Label: 1, Pred: 5
+Label: 3, Pred: 5
+Label: 7, Pred: 5
+Label: 3, Pred: 5
+Label: 7, Pred: 5
+Label: 5, Pred: 5
+Label: 2, Pred: 5
+Label: 7, Pred: 5
+Label: 4, Pred: 5
+Label: 6, Pred: 5
+Label: 7, Pred: 5
+Label: 7, Pred: 5
+Label: 5, Pred: 5
+Label: 5, Pred: 5
+Label: 6, Pred: 5
+Label: 2, Pred: 5
+Label: 4, Pred: 5
+Label: 7, Pred: 5
+Label: 4, Pred: 5
+Label: 5, Pred: 5
+Label: 1, Pred: 5
+Label: 1, Pred: 5
+Label: 6, Pred: 5
+Label: 4, Pred: 5
+Label: 3, Pred: 5
+Label: 0, Pred: 5
+Label: 7, Pred: 5
+Label: 0, Pred: 5
+Label: 1, Pred: 5
+Label: 1, Pred: 5
+Label: 4, Pred: 5
+Label: 2, Pred: 5
+Label: 0, Pred: 5
+Label: 3, Pred: 5
+Label: 4, Pred: 5
+Label: 7, Pred: 5
+Label: 7, Pred: 5
+Label: 7, Pred: 5
+
+Accuracy: 0.1181
