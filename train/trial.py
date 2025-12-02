@@ -10,12 +10,10 @@ from sklearn.model_selection import train_test_split
 from torch.nn.utils.rnn import pad_sequence
 
 
+import matplotlib.pyplot as plt
+
 class EmbeddingDataset(Dataset):
     def __init__(self, embeddings, labels):
-        """
-        embeddings: list of torch.Tensor, each shape (T_i, feature_dim)
-        labels: list of int
-        """
         self.embeddings = embeddings
         self.labels = labels
 
@@ -35,115 +33,148 @@ def collate_fn(batch):
     return xs_padded, ys
 
 class AudioRNN(nn.Module):
-    def __init__(self, 
-                 feature_dim: int, 
-                 hidden_dim: int = 128, 
-                 num_layers: int = 2,
-                 rnn_type: str = "lstm",
-                 num_classes: int = 10):
+    def __init__(self,
+                 feature_dim=1024,
+                 proj_dim=256,
+                 hidden_dim=256,
+                 num_layers=2,
+                 num_classes=8):
         super().__init__()
 
-        rnn_cls = {
-            "lstm": nn.LSTM,
-            "gru": nn.GRU,
-            "rnn": nn.RNN
-        }[rnn_type.lower()]
+        # ---- 1. Projection 1024 → 256 ----
+        self.proj = nn.Sequential(
+            nn.Linear(feature_dim, proj_dim),
+            nn.LayerNorm(proj_dim),
+            nn.ReLU()
+        )
 
-        self.rnn = rnn_cls(
-            input_size=feature_dim,
+        # ---- 2. BiLSTM ----
+        self.rnn = nn.LSTM(
+            input_size=proj_dim,
             hidden_size=hidden_dim,
             num_layers=num_layers,
             batch_first=True,
-            bidirectional=False
+            bidirectional=True
         )
 
-        self.fc = nn.Linear(hidden_dim, num_classes)
+        # ---- 3. Final classifier ----
+        self.fc = nn.Linear(hidden_dim * 2, num_classes)
 
     def forward(self, x):
-        """
-        x: (batch, time, feature_dim)
-        """
-        out, hidden = self.rnn(x)
-        last_out = out[:, -1, :] 
-        out = self.fc(last_out)
-        return out
+        # x: (batch, seq_len, 1024)
+        x = self.proj(x)              # → (batch, seq_len, 256)
+
+        out, _ = self.rnn(x)          # → (batch, seq_len, 512)
+
+        pooled = out.mean(dim=1)      # → (batch, 512)
+
+        return self.fc(pooled)
+
+def test(model, test_loader):
+    # ---- eval ----
+    model.eval()
+    correct, total = 0, 0
+    running_loss = 0.0
+    criterion = nn.CrossEntropyLoss()
+    with torch.no_grad():
+        for x, y in test_loader:
+            x, y = x.to(device), y.to(device)
+            preds = model(x).argmax(dim=1)
+            correct += (preds == y).sum().item()
+            total += y.size(0)
+
+            loss = criterion(model(x), y)
+            running_loss += loss.item()
+            
+    print(f"Test Accuracy: {correct/total:.4f}")
+    return correct/total, running_loss/len(test_loader)
 
 
-def train(embeddings, labels, num_classes=8, device="cpu"):
-    # Split train/test manually if needed
+
+def train(train_loader, test_loader, num_classes=8, device="cpu"):
     print("Training")
-    dataset = EmbeddingDataset(embeddings, labels)
-    loader = DataLoader(dataset, batch_size=8, shuffle=True, collate_fn=collate_fn)
 
-    model = AudioRNN(feature_dim=1024, hidden_dim=128, num_layers=2, num_classes=num_classes).to(device)
+    model = AudioRNN(feature_dim=1024).to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=1e-3)
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer, mode="min", factor=0.5, patience=5
+    )
 
-    epochs = 200
+    train_acc = []
+    test_acc = []
+    train_loss = []
+    test_loss = []
+    epochs = 60
     for epoch in range(epochs):
-        print(f"epoch: {epoch}")
         model.train()
         running_loss = 0.0
-        for x, y in loader:
+        correct, total = 0, 0
+
+        for x, y in train_loader:
             x, y = x.to(device), y.to(device)
+
             optimizer.zero_grad()
             logits = model(x)
             loss = criterion(logits, y)
             loss.backward()
             optimizer.step()
-            running_loss += loss.item()
-        print(f"Epoch {epoch+1}/{epochs} | Loss: {running_loss/len(loader):.4f}")
 
-    model.eval()
-    correct, total = 0, 0
-    with torch.no_grad():
-        for x, y in loader:
-            x, y = x.to(device), y.to(device)            
-            logits = model(x)
-            preds = torch.argmax(logits, dim=1)
-            correct += (preds == y).sum().item()
-            total += y.size(0)
-    print(f"Accuracy: {correct/total:.4f}")
+            running_loss += loss.item()
+            correct += (logits.argmax(dim=1) == y).sum().item()
+            total+=y.size(0)
+
+        epoch_loss = running_loss / len(train_loader)
+        scheduler.step(epoch_loss)
+
+        print(f"Epoch {epoch+1}/{epochs} | Loss: {epoch_loss:.4f} | Accuracy: {correct/total:.4}")
+
+        test_a, test_l = test(model, test_loader)
+        train_acc.append(correct/total)
+        test_acc.append(test_a)
+        train_loss.append(epoch_loss)
+        test_loss.append(test_l)
+    graph(train_acc=train_acc, test_acc=test_acc, train_loss=train_loss, test_loss=test_loss, epochs=epochs)
 
     return model
-
 
 files = get_file_matrix()
 file_paths = matrix_to_filename(files, RAW_DATA_PATH)
 labels = get_labels(files)
 embeddings = []
 EMBEDDING_FILE = 'embeddings.pt'
-print("Getting embeddings")
 
-if(os.path.exists(EMBEDDING_FILE)):
-    print(f"Loading embeddings from {EMBEDDING_FILE}")
-    embeddings = torch.load(EMBEDDING_FILE)
-else:
-    print(f"Loading embeddings using Wav2Vec")
-    c = 0
-    for f in file_paths:
-        embeddings.append(torch.from_numpy(get_embedding(f)).unsqueeze(-1).squeeze(0).squeeze(-1))
-        c+=1
-        print(c)
-    torch.save(embeddings, EMBEDDING_FILE)
-    print(f"Saved embeddings to {EMBEDDING_FILE}")
-print("Done getting embeddings")
+embeddings = get_wav2vec_embeddings(EMBEDDING_FILE, file_paths)
 
 
-train_emb, test_emb, y_train, y_test = train_test_split(
-    embeddings, labels, test_size=0.2, random_state=42
+# ---- real train/test split ----
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(
+    embeddings, labels, test_size=0.2, random_state=42, stratify=labels
 )
-print("finished train/test split")
-model = train(train_emb, y_train)
+# X_train, X_test, y_train, y_test = [],[],[],[]
+# for i, file in enumerate(files):
+#     if(file[6] >=21):
+#         X_test.append(embeddings[i])
+#         y_test.append(labels[i])
+#     else:
+#         X_train.append(embeddings[i])
+#         y_train.append(labels[i])
 
-correct, total = 0, 0
-for emb, label in zip(test_emb, y_test):
-    x = emb.unsqueeze(0).to(device) 
-    y = torch.tensor([label], device=device)
-    with torch.no_grad():
-        logits = model(x)
-        pred = torch.argmax(logits, dim=1)
-    correct += (pred == y).sum().item()
-    total += 1
-torch.save(model, "model.pt")
-print(f"\nAccuracy: {correct/total:.4f}")
+
+emb = np.vstack([e.reshape(-1, 1024) for e in X_train])
+mean = emb.mean(axis=0)
+std  = emb.std(axis=0) + 1e-6
+
+X_train = [(e - mean) / std for e in X_train]
+X_test  = [(e - mean) / std for e in X_test]
+
+train_ds = EmbeddingDataset(X_train, y_train)
+test_ds  = EmbeddingDataset(X_test, y_test)
+
+train_loader = DataLoader(train_ds, batch_size=32, shuffle=True, collate_fn=collate_fn)
+test_loader  = DataLoader(test_ds, batch_size=32, shuffle=False, collate_fn=collate_fn)
+
+print("finished train/test split")
+# model = train(train_emb, y_train)
+model = train(train_loader,test_loader , labels)

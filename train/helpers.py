@@ -9,6 +9,7 @@ from transformers import Wav2Vec2Processor, Wav2Vec2Model
 import pandas as pd
 import librosa
 
+import os
 # parse the file names into a numpy matrix, each row represents one file.
 RAW_DATA_PATH = '../data/raw'
 
@@ -103,3 +104,35 @@ def get_embedding(file_path):
     #Take mean across time dimension to get single vector representation
     embedding = outputs.last_hidden_state
     return embedding.cpu().numpy()
+
+def graph(train_acc, test_acc, train_loss, test_loss, epochs):
+    plt.figure(figsize=(10, 6)) 
+    plt.plot(list(range(epochs)), train_acc, label='Training Accuracy')
+    plt.plot(list(range(epochs)), test_acc, label='Test Accuracy')
+    plt.legend()
+    plt.savefig("accuracy.png") 
+    plt.clf()
+    plt.figure(figsize=(10, 6)) 
+    plt.plot(list(range(epochs)), train_loss, label='Training loss')
+    plt.plot(list(range(epochs)), test_loss, label='Test loss')
+    plt.legend()
+    plt.savefig("loss.png") 
+    plt.clf()
+def get_wav2vec_embeddings(EMBEDDING_FILE, file_paths):
+    embeddings = []
+    print("Getting embeddings")
+
+    if(os.path.exists(EMBEDDING_FILE)):
+        print(f"Loading embeddings from {EMBEDDING_FILE}")
+        embeddings = torch.load(EMBEDDING_FILE)
+    else:
+        print(f"Loading embeddings using Wav2Vec")
+        c = 0
+        for f in file_paths:
+            embeddings.append(torch.from_numpy(get_embedding(f)).unsqueeze(-1).squeeze(0).squeeze(-1))
+            c+=1
+            print(c)
+        torch.save(embeddings, EMBEDDING_FILE)
+        print(f"Saved embeddings to {EMBEDDING_FILE}")
+    print("Done getting embeddings")
+    return embeddings
