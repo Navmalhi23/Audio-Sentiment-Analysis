@@ -8,22 +8,24 @@ from helpers import *
 import torch.optim as optim
 from sklearn.model_selection import train_test_split
 from torch.nn.utils.rnn import pad_sequence
+import librosa
 
-
-import matplotlib.pyplot as plt
-
-class EmbeddingDataset(Dataset):
-    def __init__(self, embeddings, labels):
-        self.embeddings = embeddings
-        self.labels = labels
-
-    def __len__(self):
-        return len(self.embeddings)
-
-    def __getitem__(self, idx):
-        x = self.embeddings[idx]           
-        y = torch.tensor(self.labels[idx], dtype=torch.long)
-        return x, y
+# Augmentations
+from audio_transforms import(
+    Compose,
+    RandomTimeStretch, 
+    RandomPitchShift, 
+    RandomAddNoise, 
+    RandomGain, 
+    RandomTimeShift
+)
+transform_series = Compose([
+    RandomTimeStretch(p=0.5),
+    RandomPitchShift(p=0.5),
+    RandomAddNoise(p=0.5),
+    RandomGain(p=0.5),
+    RandomTimeShift(p=0.5)
+])
     
 
 def collate_fn(batch):
@@ -32,11 +34,32 @@ def collate_fn(batch):
     xs_padded = pad_sequence(xs, batch_first=True) 
     return xs_padded, ys
 
+class AudioDataset(Dataset):
+    def __init__(self, file_paths, labels, sr=48000, transform=None):
+        self.files = []
+        self.labels = labels
+        self.sr = sr
+        self.transform = transform
+        for f in file_paths:
+            y, _ = librosa.load(f)
+            # print(y.shape)
+            self.files.append(y)
+            
+
+    def __len__(self):
+        return len(self.files)
+
+    def __getitem__(self, idx):
+        wav = self.files[idx]
+        if self.transform is not None:
+            wav = self.transform(self.files[idx], self.sr)
+        return librosa.feature.melspectrogram(y=wav, sr=self.sr).transpose(), self.labels[idx]
+    
 class AudioRNN(nn.Module):
     def __init__(self,
-                 feature_dim=1024,
-                 proj_dim=256,
-                 hidden_dim=256,
+                 feature_dim=1,
+                 proj_dim=64,
+                 hidden_dim=128,
                  num_layers=2,
                  num_classes=8):
         super().__init__()
@@ -71,7 +94,6 @@ class AudioRNN(nn.Module):
         return self.fc(pooled)
 
 def test(model, test_loader):
-    # ---- eval ----
     model.eval()
     correct, total = 0, 0
     running_loss = 0.0
@@ -94,7 +116,7 @@ def test(model, test_loader):
 def train(train_loader, test_loader, num_classes=8, device="cpu"):
     print("Training")
 
-    model = AudioRNN(feature_dim=1024).to(device)
+    model = AudioRNN(feature_dim=128).to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=1e-3)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(
@@ -112,7 +134,10 @@ def train(train_loader, test_loader, num_classes=8, device="cpu"):
         correct, total = 0, 0
 
         for x, y in train_loader:
+            
+            # print(x.shape)
             x, y = x.to(device), y.to(device)
+            # print(x.shape)
 
             optimizer.zero_grad()
             logits = model(x)
@@ -141,40 +166,16 @@ def train(train_loader, test_loader, num_classes=8, device="cpu"):
 files = get_file_matrix()
 file_paths = matrix_to_filename(files, RAW_DATA_PATH)
 labels = get_labels(files)
-embeddings = []
-EMBEDDING_FILE = 'embeddings.pt'
 
-embeddings = get_wav2vec_embeddings(EMBEDDING_FILE, file_paths)
-
-
-# ---- real train/test split ----
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(
-    embeddings, labels, test_size=0.2, random_state=42, stratify=labels
+    file_paths, labels, test_size=0.2, random_state=42, stratify=labels
 )
-# X_train, X_test, y_train, y_test = [],[],[],[]
-# for i, file in enumerate(files):
-#     if(file[6] >=21):
-#         X_test.append(embeddings[i])
-#         y_test.append(labels[i])
-#     else:
-#         X_train.append(embeddings[i])
-#         y_train.append(labels[i])
-
-
-emb = np.vstack([e.reshape(-1, 1024) for e in X_train])
-mean = emb.mean(axis=0)
-std  = emb.std(axis=0) + 1e-6
-
-X_train = [(e - mean) / std for e in X_train]
-X_test  = [(e - mean) / std for e in X_test]
-
-train_ds = EmbeddingDataset(X_train, y_train)
-test_ds  = EmbeddingDataset(X_test, y_test)
+train_ds = AudioDataset(X_train, y_train, transform=transform_series)
+test_ds  = AudioDataset(X_test, y_test)
 
 train_loader = DataLoader(train_ds, batch_size=32, shuffle=True, collate_fn=collate_fn)
 test_loader  = DataLoader(test_ds, batch_size=32, shuffle=False, collate_fn=collate_fn)
 
 print("finished train/test split")
-# model = train(train_emb, y_train)
 model = train(train_loader,test_loader , labels)
