@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import os
 
 from torch.utils.data import Dataset, DataLoader
 
@@ -42,7 +41,6 @@ class AudioDataset(Dataset):
         self.transform = transform
         for f in file_paths:
             y, _ = librosa.load(f)
-            # print(y.shape)
             self.files.append(y)
             
 
@@ -53,7 +51,9 @@ class AudioDataset(Dataset):
         wav = self.files[idx]
         if self.transform is not None:
             wav = self.transform(self.files[idx], self.sr)
-        return librosa.feature.melspectrogram(y=wav, sr=self.sr).transpose(), self.labels[idx]
+
+        features = librosa.feature.melspectrogram(y=wav, sr=self.sr)
+        return features.transpose(), self.labels[idx]
     
 class AudioRNN(nn.Module):
     def __init__(self,
@@ -84,12 +84,10 @@ class AudioRNN(nn.Module):
         self.fc = nn.Linear(hidden_dim * 2, num_classes)
 
     def forward(self, x):
-        # x: (batch, seq_len, 1024)
-        x = self.proj(x)              # → (batch, seq_len, 256)
 
-        out, _ = self.rnn(x)          # → (batch, seq_len, 512)
-
-        pooled = out.mean(dim=1)      # → (batch, 512)
+        x = self.proj(x)         
+        out, _ = self.rnn(x)     
+        pooled = out.mean(dim=1) 
 
         return self.fc(pooled)
 
@@ -127,7 +125,7 @@ def train(train_loader, test_loader, num_classes=8, device="cpu"):
     test_acc = []
     train_loss = []
     test_loss = []
-    epochs = 60
+    epochs = 100
     for epoch in range(epochs):
         model.train()
         running_loss = 0.0
@@ -135,10 +133,7 @@ def train(train_loader, test_loader, num_classes=8, device="cpu"):
 
         for x, y in train_loader:
             
-            # print(x.shape)
             x, y = x.to(device), y.to(device)
-            # print(x.shape)
-
             optimizer.zero_grad()
             logits = model(x)
             loss = criterion(logits, y)
@@ -179,3 +174,4 @@ test_loader  = DataLoader(test_ds, batch_size=32, shuffle=False, collate_fn=coll
 
 print("finished train/test split")
 model = train(train_loader,test_loader , labels)
+torch.save(model, "model.pt")
